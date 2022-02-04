@@ -1,0 +1,33 @@
+{
+    "name": "Cumbridge One",
+    "description": "Cambridge One Solver",
+    "version": "1.0",
+    "manifest_version": 2,
+    "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "https://www.cambridgeone.org/*", "*://content.cambridgeone.org/*"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://www.cambridgeone.org/*"],
+            "js": ["content.js"]
+        }
+    ],
+    "page_action": {
+      "default_popup": "popup.html",
+      "default_title": "Cumbridge One",
+      "default_icon": {
+        "16": "/images/flexIcon16.png",
+        "32": "/images/flexIcon32.png",
+        "48": "/images/flexIcon48.png",
+        "128": "/images/flexIcon128.png"
+      }
+    },
+    "icons": {
+      "16": "/images/flexIcon16.png",
+      "32": "/images/flexIcon32.png",
+      "48": "/images/flexIcon48.png",
+      "128": "/images/flexIcon128.png"
+    }
+  }
