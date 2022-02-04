@@ -21,19 +21,6 @@ chrome.webRequest.onCompleted.addListener(
   ['responseHeaders'],
 );
 
-chrome.devtools.network.onRequestFinished.addListener(request => {
-  request.getContent((body) => {
-    if (request.request && request.request.url) {
-      if (request.request.url.includes('*://content.cambridgeone.org/*/data.js')) {
-
-         //continue with custom code
-         console.log(body);
-         var bodyObj = JSON.parse(body);//etc.
-      }
-}
-});
-});
-
 // chrome.webRequest.onBeforeRequest.addListener(
 //   function (details) {
 //     if (
