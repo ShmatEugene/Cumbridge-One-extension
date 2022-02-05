@@ -3,15 +3,19 @@
     "description": "Cambridge One Solver",
     "version": "1.0",
     "manifest_version": 2,
-    "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "https://www.cambridgeone.org/*", "*://content.cambridgeone.org/*"],
+    "permissions": ["storage", "tabs", "activeTab", "webRequest", "webRequestBlocking", "https://www.cambridgeone.org/*", "*://content.cambridgeone.org/*"],
     "background": {
         "scripts": ["background.js"],
         "persistent": true
     },
+    "web_accessible_resources": [
+      "fix.css"
+    ],
     "content_scripts": [
         {
             "matches": ["https://www.cambridgeone.org/*"],
-            "js": ["content.js"]
+            "js": ["content.js"],
+            "css": ["fix.css"]
         }
     ],
     "page_action": {

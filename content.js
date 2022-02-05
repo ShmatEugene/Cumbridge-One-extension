@@ -20,6 +20,10 @@ function isCorrectAnswer(answer, correctAnswers) {
   return false;
 }
 
+function insertAfter(newNode, referenceNode) {
+  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
 chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.toDo == 'sendAjaxData') {
     const ajaxData = JSON.parse(msg.data.replace(/ajaxData = |;/g, ''));
@@ -196,7 +200,35 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
         };
       });
     console.log(tasks);
-    chrome.storage.sync.set({ cumbridgeOneAnswers: response.recordsUpdatedCount });
+
+    window.setTimeout(function () {
+      const iframe = document.getElementsByTagName('iframe')[0];
+
+      for (let i = 1; i < tasks.length - 1; i++) {
+        const task = tasks[i];
+        const content = iframe.contentWindow.document.getElementById(`content-${i - 1}`);
+        const answersDiv = document.createElement('div');
+        answersDiv.className = 'cumbridge-one-extension';
+        answersDiv.style.userSelect = 'text';
+
+        task.correctResponses.forEach((response, index) => {
+          content.appendChild(document.createElement('hr'));
+
+          let h5 = document.createElement('h5');
+          let ul = document.createElement('ul');
+          h5.innerText = `Вопрос ${index + 1}`;
+          answersDiv.appendChild(h5);
+          answersDiv.appendChild(ul);
+          response.answers.forEach((answer) => {
+            let li = document.createElement('li');
+            li.innerText = answer;
+            ul.appendChild(li);
+          });
+        });
+
+        content.appendChild(answersDiv);
+      }
+    }, 3000);
   }
   return true;
 });
