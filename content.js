@@ -30,18 +30,23 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
     const tasks = Object.keys(ajaxData)
       .sort()
       .map((key) => {
-        const oDOM = oParser.parseFromString(ajaxData[key], 'text/xml');
+        const oDOM = oParser.parseFromString(
+          ajaxData[key]
+            .replace(/&amp|&ampamp/g, '&amp;amp;') //<= start with
+            .replace(/&lt/g, '&lt;')
+            .replace(/&gt/g, '&gt;')
+            .replace(/&quot/g, '&quot;'),
+          'text/xml',
+        );
         let responsesCollection = oDOM.getElementsByTagName('responseDeclaration');
 
         let responses = [];
-        
 
         for (let i = 0; i < responsesCollection.length; i++) {
           const response = responsesCollection[i];
           const responseID = response.attributes.identifier.nodeValue;
 
           let values = [];
-
           let valuesCollection = response.childNodes[0].childNodes;
 
           for (let j = 0; j < valuesCollection.length; j++) {
@@ -52,7 +57,7 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
           responses.push({
             responseID,
             values,
-            answers: []
+            answers: [],
           });
           console.log(values);
         }
@@ -60,8 +65,9 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
         //check questions types ----------------
         //inlineChoice
         if (oDOM.getElementsByTagName('inlineChoiceInteraction')) {
-          const inlineChoiceInteractionCollection = oDOM.getElementsByTagName('inlineChoiceInteraction');
-          
+          const inlineChoiceInteractionCollection =
+            oDOM.getElementsByTagName('inlineChoiceInteraction');
+
           for (let i = 0; i < inlineChoiceInteractionCollection.length; i++) {
             const inlineChoiceInteraction = inlineChoiceInteractionCollection[i];
             const inlineChoiceCollection = inlineChoiceInteraction.childNodes;
@@ -84,7 +90,103 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
             }
 
             responses[i].answers = answers;
-            
+          }
+        }
+
+        //choiceInteraction (radiobutton, checkbox)
+        if (oDOM.getElementsByTagName('choiceInteraction')) {
+          const choiceInteractionCollection = oDOM.getElementsByTagName('choiceInteraction');
+
+          for (let i = 0; i < choiceInteractionCollection.length; i++) {
+            const choiceInteraction = choiceInteractionCollection[i];
+            const choiceCollection = choiceInteraction.childNodes;
+            const responseID = choiceInteraction.attributes.responseIdentifier.nodeValue;
+
+            let responseIndex = getCorrectResponseByID(responseID, responses);
+
+            let values = [];
+            let answers = [];
+
+            if (responseIndex !== null) {
+              values = responses[responseIndex].values;
+            }
+
+            for (let j = 0; j < choiceCollection.length; j++) {
+              const inlineChoice = choiceCollection[j];
+              if (
+                inlineChoice.attributes.identifier &&
+                isCorrectAnswer(inlineChoice.attributes.identifier.nodeValue, values)
+              ) {
+                answers.push(
+                  ++inlineChoice.attributes.identifier.nodeValue.split('_')[1] +
+                    ': ' +
+                    inlineChoice.innerHTML,
+                );
+              }
+            }
+
+            responses[i].answers = answers;
+          }
+        }
+
+        //gapMatchInteraction
+        if (oDOM.getElementsByTagName('gapMatchInteraction')) {
+          const gapMatchInteractionCollection = oDOM.getElementsByTagName('gapMatchInteraction');
+
+          for (let i = 0; i < gapMatchInteractionCollection.length; i++) {
+            const gapMatchInteraction = gapMatchInteractionCollection[i];
+            const gapTextCollection = gapMatchInteraction.childNodes;
+            const responseID = gapMatchInteraction.attributes.responseIdentifier.nodeValue;
+
+            let responseIndex = getCorrectResponseByID(responseID, responses);
+
+            let values = [];
+            let answers = [];
+
+            if (responseIndex !== null) {
+              values = responses[responseIndex].values.map((value) => value.split(' ')[0]);
+            }
+            for (let j = 0; j < gapTextCollection.length; j++) {
+              const gapText = gapTextCollection[j];
+              if (
+                gapText.attributes.identifier &&
+                isCorrectAnswer(gapText.attributes.identifier.nodeValue, values)
+              ) {
+                answers.push(gapText.innerHTML);
+              } else {
+              }
+            }
+
+            responses[i].answers = answers;
+          }
+        }
+        //textEntryInteraction
+        if (oDOM.getElementsByTagName('textEntryInteraction')) {
+          const textEntryInteractionCollection = oDOM.getElementsByTagName('textEntryInteraction');
+
+          for (let i = 0; i < textEntryInteractionCollection.length; i++) {
+            const textEntryInteraction = textEntryInteractionCollection[i];
+            const gapTextCollection = textEntryInteraction.childNodes;
+            const responseID = textEntryInteraction.attributes.responseIdentifier.nodeValue;
+
+            let responseIndex = getCorrectResponseByID(responseID, responses);
+
+            let answers = [];
+
+            if (responseIndex !== null) {
+              const filter = /\*\*.*/;
+              answers = responses[responseIndex].values
+                .filter((value) => !filter.test(value))
+                .map((value) =>
+                  value
+                    .replace(/&ampamp;/g, '&') //<= start with
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"'),
+                );
+            }
+
+            responses[i].answers = answers;
           }
         }
 
@@ -94,6 +196,7 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
         };
       });
     console.log(tasks);
+    chrome.storage.sync.set({ cumbridgeOneAnswers: response.recordsUpdatedCount });
   }
   return true;
 });

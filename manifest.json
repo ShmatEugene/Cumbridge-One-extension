@@ -18,16 +18,16 @@
       "default_popup": "popup.html",
       "default_title": "Cumbridge One",
       "default_icon": {
-        "16": "/images/flexIcon16.png",
-        "32": "/images/flexIcon32.png",
-        "48": "/images/flexIcon48.png",
-        "128": "/images/flexIcon128.png"
+        "16": "/images/cumbridge16.png",
+        "32": "/images/cumbridge32.png",
+        "48": "/images/cumbridge48.png",
+        "128": "/images/cumbridge128.png"
       }
     },
     "icons": {
-      "16": "/images/flexIcon16.png",
-      "32": "/images/flexIcon32.png",
-      "48": "/images/flexIcon48.png",
-      "128": "/images/flexIcon128.png"
+      "16": "/images/cumbridge16.png",
+      "32": "/images/cumbridge32.png",
+      "48": "/images/cumbridge48.png",
+      "128": "/images/cumbridge128.png"
     }
   }
