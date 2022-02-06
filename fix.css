@@ -1,6 +1,23 @@
 .cumbridge-one-extension {
-  user-select: all !important;
-  -webkit-user-select: all !important;
-  -moz-user-select: all !important;
-  -ms-user-select: all !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  position: relative;
+}
+
+.cumbridge-one-extension::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: #c7c7c7;
+}
+
+.cumbridge-one-extension:hover::after {
+  background: none;
+  width: 0%;
+  height: 0%;
 }
