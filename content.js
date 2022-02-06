@@ -260,5 +260,5 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       observer.observe(iframe, observerConfig);
     }
   }
-  return true;
+  return Promise.resolve('Dummy response to keep the console quiet');
 });
