@@ -24,7 +24,7 @@ function insertAfter(newNode, referenceNode) {
   referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 
-chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.toDo == 'sendAjaxData') {
     const ajaxData = JSON.parse(msg.data.replace(/ajaxData = |;/g, ''));
     console.log(ajaxData);
@@ -212,7 +212,7 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
       };
 
       //add styles to iframe
-      let a = chrome.extension.getURL('fix.css');
+      let a = chrome.runtime.getURL('fix.css');
       let link = document.createElement('link');
       const head = iframe.contentWindow.document.getElementsByTagName('head')[0];
 

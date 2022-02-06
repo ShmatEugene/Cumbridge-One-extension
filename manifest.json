@@ -2,14 +2,17 @@
     "name": "Cumbridge One",
     "description": "Cambridge One Solver",
     "version": "1.0",
-    "manifest_version": 2,
-    "permissions": ["storage", "tabs", "webRequest", "webRequestBlocking", "https://www.cambridgeone.org/*", "*://content.cambridgeone.org/*"],
+    "manifest_version": 3,
+    "permissions": ["storage", "tabs", "webRequest", "declarativeNetRequest"],
+    "host_permissions": ["https://www.cambridgeone.org/*", "*://content.cambridgeone.org/*"],
     "background": {
-        "scripts": ["background.js"],
-        "persistent": true
+        "service_worker": "background.js"
     },
     "web_accessible_resources": [
-      "fix.css"
+      {
+        "resources": ["fix.css"],
+        "matches": ["https://www.cambridgeone.org/*"]
+      }
     ],
     "content_scripts": [
         {
@@ -18,7 +21,7 @@
             "css": ["fix.css"]
         }
     ],
-    "page_action": {
+    "action": {
       "default_popup": "popup.html",
       "default_title": "Cumbridge One",
       "default_icon": {
