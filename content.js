@@ -183,7 +183,7 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
                 .filter((value) => !filter.test(value))
                 .map((value) =>
                   value
-                    .replace(/&ampamp;/g, '&') //<= start with
+                    .replace(/&ampamp;/g, '&')
                     .replace(/&lt;/g, '<')
                     .replace(/&gt;/g, '>')
                     .replace(/&quot;/g, '"'),
@@ -201,34 +201,64 @@ chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
       });
     console.log(tasks);
 
-    window.setTimeout(function () {
-      const iframe = document.getElementsByTagName('iframe')[0];
+    // -------------- show answers
+    if (document.getElementById('content-course-ext')) {
+      const iframe = document
+        .getElementById('content-course-ext')
+        .getElementsByTagName('iframe')[0];
 
-      for (let i = 1; i < tasks.length - 1; i++) {
-        const task = tasks[i];
-        const content = iframe.contentWindow.document.getElementById(`content-${i - 1}`);
-        const answersDiv = document.createElement('div');
-        answersDiv.className = 'cumbridge-one-extension';
-        answersDiv.style.userSelect = 'text';
+      const observerConfig = {
+        attributes: true,
+      };
 
-        task.correctResponses.forEach((response, index) => {
-          content.appendChild(document.createElement('hr'));
+      //add styles to iframe
+      let a = chrome.extension.getURL('fix.css');
+      let link = document.createElement('link');
+      const head = iframe.contentWindow.document.getElementsByTagName('head')[0];
 
-          let h5 = document.createElement('h5');
-          let ul = document.createElement('ul');
-          h5.innerText = `Вопрос ${index + 1}`;
-          answersDiv.appendChild(h5);
-          answersDiv.appendChild(ul);
-          response.answers.forEach((answer) => {
-            let li = document.createElement('li');
-            li.innerText = answer;
-            ul.appendChild(li);
-          });
-        });
+      link.setAttribute('rel', 'stylesheet');
+      link.setAttribute('type', 'text/css');
+      link.setAttribute('href', `${a}`);
 
-        content.appendChild(answersDiv);
-      }
-    }, 3000);
+      head.appendChild(link);
+
+      // mutation callback
+      const callback = function (mutationsList, observer) {
+        for (let mutation of mutationsList) {
+          if (mutation.type === 'attributes') {
+            window.setTimeout(function () {
+              for (let i = 1; i < tasks.length - 1; i++) {
+                const task = tasks[i];
+                const content = iframe.contentWindow.document.getElementById(`content-${i - 1}`);
+                const answersDiv = document.createElement('div');
+                answersDiv.className = 'cumbridge-one-extension';
+
+                task.correctResponses.forEach((response, index) => {
+                  content.appendChild(document.createElement('hr'));
+
+                  let h5 = document.createElement('h5');
+                  let ul = document.createElement('ul');
+                  h5.innerText = `Вопрос ${index + 1}`;
+                  answersDiv.appendChild(h5);
+                  answersDiv.appendChild(ul);
+                  response.answers.forEach((answer) => {
+                    let li = document.createElement('li');
+                    li.innerText = answer;
+                    ul.appendChild(li);
+                  });
+                });
+
+                content.appendChild(answersDiv);
+              }
+            }, 500);
+          }
+        }
+      };
+
+      const observer = new MutationObserver(callback);
+
+      observer.observe(iframe, observerConfig);
+    }
   }
   return true;
 });
