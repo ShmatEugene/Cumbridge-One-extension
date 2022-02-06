@@ -207,10 +207,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         .getElementById('content-course-ext')
         .getElementsByTagName('iframe')[0];
 
-      const observerConfig = {
-        attributes: true,
-      };
-
       //add styles to iframe
       let a = chrome.runtime.getURL('fix.css');
       let link = document.createElement('link');
@@ -221,6 +217,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       link.setAttribute('href', `${a}`);
 
       head.appendChild(link);
+
+      const observerConfig = {
+        attributes: true,
+      };
 
       // mutation callback
       const callback = function (mutationsList, observer) {
@@ -234,7 +234,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
                 answersDiv.className = 'cumbridge-one-extension';
 
                 task.correctResponses.forEach((response, index) => {
-                  content.appendChild(document.createElement('hr'));
+                  // answersDiv.appendChild(document.createElement('hr'));
 
                   let h5 = document.createElement('h5');
                   let ul = document.createElement('ul');
@@ -250,6 +250,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
                 content.appendChild(answersDiv);
               }
+
+              //add scroll
+              scroll = iframe.contentWindow.document.getElementsByClassName('scrollable')[0];
+              scroll.classList.remove('no-scroll');
             }, 500);
           }
         }
